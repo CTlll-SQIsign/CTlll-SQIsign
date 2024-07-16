@@ -1,0 +1,9 @@
+#ifndef BKZ_CONSTANTS_H
+#define BKZ_CONSTANTS_H
+
+
+#define BKZ_TOURS 4
+#define LAGRANGE_TOURS 7
+#define BENCHMARK_ITERATIONS 1
+
+#endif
