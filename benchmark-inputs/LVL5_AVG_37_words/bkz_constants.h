@@ -2,8 +2,8 @@
 #define BKZ_CONSTANTS_H
 
 
-#define BKZ_TOURS 18
-#define LAGRANGE_TOURS 10
+#define BKZ_TOURS 10
+#define LAGRANGE_TOURS 18
 #define BENCHMARK_ITERATIONS 1
 
 #endif

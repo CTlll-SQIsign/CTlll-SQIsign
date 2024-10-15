@@ -1,3 +1,4 @@
+
 #indices = [i for i in range(2, 12)]# + [i for i in range(21, 37)]
 
 indices = [i for i in range(0, 10)] #indices of files in each folder
@@ -26,3 +27,7 @@ for ctr in [i for i in range(0, 10)]: #folder counter
     #with open(folder+"bench_p335_nl11_"+str(ctr)+"_all", 'w') as fp:
     with open(folder+"bench_p335_nl11_all_all", 'w') as fp:
         fp.write(benchmarks)
+
+
+
+

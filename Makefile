@@ -6,6 +6,9 @@ build/run: src/run.c src/inputs.h src/bkz_constants.h  src/read_data.h build/lib
 build/bench: src/bench.c src/inputs.h src/bench.h src/bkz_constants.h  src/read_data.h build/libbkz.a build/liblll.a  build/libcthelpers.a build/libctintbig.a build/libinputs.a
 	gcc $(CFLAGS) src/bench.c -L./build -linputs -lbkz -llll -lcthelpers -lctintbig -lgmp  -o build/bench
 
+build/bench_nct_lll: src/bench_nct_lll.c src/nct_intbig_lll/lll.h src/inputs.h src/bench.h src/bkz_constants.h  src/read_data.h build/libcthelpers.a build/libctintbig.a build/libinputs.a build/libnctlll.a  build/libnctintbig.a
+	gcc $(CFLAGS) src/bench_nct_lll.c -L./build -linputs -lnctlll -lnctintbig  -lcthelpers -lctintbig -lgmp  -o build/bench_nct_lll
+
 build/small_test: src/small_test.c build/libtesttesthelpers.a build/libtesthelpers.a build/libnctintbig.a build/libbkz.a build/liblll.a  build/libcthelpers.a build/libctintbig.a build/libtestctintbig.a build/libtestbkz.a build/libtestlll.a build/libinputs.a
 	gcc $(CFLAGS) src/small_test.c -L./build -linputs  -ltesttesthelpers -ltesthelpers -ltestctintbig -ltestbkz -ltestlll -lbkz -llll -lcthelpers -lctintbig -lnctintbig -lgmp -o build/small_test
 
@@ -13,7 +16,7 @@ build/test: src/test.c src/inputs.h src/bkz_constants.h build/libtesthelpers.a b
 	gcc $(CFLAGS) src/test.c -L./build -ltesthelpers  -lbkz -linputs -llll -lcthelpers -lctintbig -lnctintbig -lgmp -o build/test
 
 build/quality_test: src/test.c src/inputs.h src/bkz_constants.h build/libtesthelpers.a build/libnctintbig.a build/libbkz.a build/liblll.a build/libcthelpers.a build/libctintbig.a build/libinputs.a src/limbnum.h src/read_data.h
-	gcc $(CFLAGS) -DPRINT_FLAG=1 src/test.c -L./build  -linputs-ltesthelpers  -lbkz -llll -lcthelpers -lctintbig -lnctintbig -lgmp -o build/quality_test
+	gcc $(CFLAGS) -DPRINT_FLAG=1 src/test.c -L./build  -linputs -ltesthelpers  -lbkz -llll -lcthelpers -lctintbig -lnctintbig -lgmp -o build/quality_test
 
 build/bench_stats: src/bench_stats.c src/inputs.h src/bench.h src/bkz_constants.h build/libtesthelpers.a build/libnctintbig.a build/libbkz.a build/liblll.a build/libcthelpers.a build/libctintbig.a build/libinputs.a src/limbnum.h src/read_data.h
 	gcc $(CFLAGS) src/bench_stats.c -L./build -linputs  -ltesthelpers  -lbkz  -llll -lcthelpers -lctintbig -lnctintbig -lgmp -o build/bench_stats
@@ -38,6 +41,9 @@ test: build/test
 
 bench: build/bench
 	./build/bench
+
+bench_nct_lll: build/bench_nct_lll
+	./build/bench_nct_lll
 
 bench_stats: build/bench_stats
 	./build/bench_stats
@@ -82,6 +88,13 @@ build/test_helpers.o: src/test_helpers/test_helpers.c src/test_helpers/test_help
 
 build/nct_helpers.o: src/test_helpers/nct_helpers.c src/test_helpers/nct_helpers.h src/nct_intbig/nct_intbig.h src/limbnum.h
 	gcc -c $(CFLAGS) src/test_helpers/nct_helpers.c -o build/nct_helpers.o
+
+
+build/libnctlll.a: build/nct_lll.o
+	ar -rcs build/libnctlll.a  build/nct_lll.o
+
+build/nct_lll.o: src/nct_intbig_lll/lll.c src/nct_intbig_lll/lll.h src/nct_intbig/nct_intbig.h
+	gcc -c $(CFLAGS) src/nct_intbig_lll/lll.c -o build/nct_lll.o
 
 
 build/libnctintbig.a: build/nct_intbig.o

@@ -33,9 +33,13 @@ void quat_bench_lll_from_file(){
 
     FILE *f;
     char* filename;
+#ifndef BENCH_STATS_OUTPUTFILE
     filename = malloc(strlen(DATA_FILE)+strlen("bench_")+1);
     strcpy(filename, "bench_");
     strcat(filename, DATA_FILE);
+#else
+    filename = BENCH_STATS_OUTPUTFILE;
+#endif
     f = fopen(filename,"w");
 
 

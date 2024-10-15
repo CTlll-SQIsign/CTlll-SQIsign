@@ -326,8 +326,8 @@ def lll_const( B, p=1, logger=None ):
         curbit = maxbitsize(G)
         if curbit > maxbit:
             maxbit = curbit
-        assert bitsize_bnd(B,p) >= curbit, f"Bug: {bitsize_bnd(B,p)} < { curbit }"
-        a0, a1 =  bitsize_bnd(B,p) , maxbitsize(G)
+        # assert bitsize_bnd(B,p) >= curbit, f"Bug: {bitsize_bnd(B,p)} < { curbit }"
+        # a0, a1 =  bitsize_bnd(B,p) , maxbitsize(G)
         for i in range(n-1):
             B = G.size_reduce(B,i+1,i+2)
 

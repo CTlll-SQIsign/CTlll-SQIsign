@@ -2,7 +2,7 @@
 
 Constant-time lattice reduction for SQIsign
 
-We will first explain how to use the present code, then we will detail the structure of the codebase and clarify which parts of the code are new and which are adapted from the NIST submission of SQIsign.
+We will first explain how to use the present code, then we will detail the structure of the codebase and clarify which parts of the code are new and which are adapted from the NIST submission of [SQIsign](https://sqisign.org/).
 
 ------
 
@@ -26,7 +26,7 @@ Most executables described below require the three header files `src/inputs.h`, 
 
 - `limbnum.h` should declare one constant called `LIMBNUM` containing the length of the integers (in 64-bit words). This file should also define the amount of scratch space (in words) needed by the specific machine and GMP version for performing multiplication (`MUL_SCRATCH`) and division (`DIV_SCRATCH`) of two integers of `LIMBNUM` limbs. This can be computed using GMP's `mpn_sec_mul_itch` and `mpn_sec_div_qr_itch` functions on inputs `LIMBNUM,LIMBNUM`, or by using the `get_scratch_size.c` file. 
 - `bkz_constants.h` should declare three constants: `BKZ_TOURS` for the number of outer tours in each call to BKZ, `LAGRANGE_TOURS` for number of loop iteration in each call to the constant-time version of Lagrange's 2-dimensional lattice reduction, and `BENCHMARK_ITERATIONS` for the number of iterations over the list of lattices in `inputs.h` used for benchmarking. The last constant is only used by bechmarking via `bench`, and can be omitted otherwise. The whole file is not required for running `small_test`
-- `inputs.h` can be used in two variations. If no data file will be used, it should declare an array of lattices `LATTICE_LIST` and an array of big integers `NORM_LIST` containing their norms (unused but useful for debugging). In this case it should also define `LATTICE_NUMBER` to be the number of lattices in `LATTICE_LIST`.  If a data file will be used, it should define a number `LATTICE_DATA_NUMBER` set to the number of lattices to be read from the file, and `DATA_FILE` which should contain the name of the data file used (usually `data_file`, but it can be changed). In both cases, it must declare and set a static big integer `QUATALG_P` (should be  prime and 3 mod 4) defining the quaternion algebra to be used. All integers must be given by their little-endian representation with as many limbs as `LIMBNUM` specifies. If this file defines constants called `LLL_TEST` (or `LLL_BENCH`) to 1 instad of 0, tests (or benchmarks) are also run on an implementation of LLL taken from SQIsign's NIST submission and slightly adapted to work with our integers. Similarly, defining constants called `LLL_TEST` (or `LLL_BENCH`) to 0 can disable tests (or benchmarks) for our BKZ-2 variant. If it defines `NO-DIVISION`, then the divisionby norm optimization (from the section on benchmarking) is disabled. It is enabled by default.
+- `inputs.h` can be used in two variations. If no data file will be used, it should declare an array of lattices `LATTICE_LIST` and an array of big integers `NORM_LIST` containing their norms (unused but useful for debugging). In this case it should also define `LATTICE_NUMBER` to be the number of lattices in `LATTICE_LIST`.  If a data file will be used, it should define a number `LATTICE_DATA_NUMBER` set to the number of lattices to be read from the file, and `DATA_FILE` which should contain the name of the data file used (usually `data_file`, but it can be changed). In both cases, it must declare and set a static big integer `QUATALG_P` (should be prime congruent to 3 mod 4) defining the quaternion algebra to be used. All integers must be given by their little-endian representation with as many limbs as `LIMBNUM` specifies. If this file defines constants called `LLL_TEST` (or `LLL_BENCH`) to 1 instad of 0, tests (or benchmarks) are also run on an implementation of LLL taken from SQIsign's NIST submission and slightly adapted to work with our integers. Similarly, defining constants called `LLL_TEST` (or `LLL_BENCH`) to 0 can disable tests (or benchmarks) for our BKZ-2 variant. If it defines `NO-DIVISION`, then the division by norm optimization (from the section on benchmarking) is disabled. It is enabled by default.
 - `inputs.c` can be just a blank file, if for example a datafile is used. Its purpose is to contain the definitions of the lists `LATTICE_LIST` (and optionally `NORM_LIST`) if these are declared as external in `inputs.h`.
 - (optional) `data_file` (or a file with another name, equal to the name in the `DATA_FILE` constant in `inputs.h`) contains the binary representation of at least `LATTICE_DATA_NUMBER` input lattices, in which each integer is represented using `LIMBNUM` 64-bit limbs. 
 - (for LLL) `lll/lll_constants.c` must define the `ibz_t` constants for 0,1,2 and 3 with the number of limbs defined in `limbnum.h`.
@@ -52,12 +52,12 @@ To generate a data file, run the script with an additional argument `-data`. The
 
 To generate input ideals in another way, the functions in `serializer.py` can be used. Some notes on this: 
 
-- In order to use `combine_lattices`, the lattices must be passed as pairs *(d,M)* where *d* is the common denominator and *M* a matrix whose columns (divided by *d*) are algebra elements. It outputs the content of the `inputs.h` and the `inputs.c` as a tuple.
+- In order to use `combine_lattices`, the lattices must be passed as pairs *(d,M)* where *d* is the common denominator and *M* is a matrix whose columns (divided by *d*) are algebra elements. It outputs the content of the `inputs.h` and the `inputs.c` as a tuple.
 - The `standard_file_write` function only writes `input.h` and `inputs.c`, the files `limbnum.h` and `lll_constants.c` must be generated by a call to `adapt_limbnum` with the correct number as argument.
 - The `adapt_limbnum` function sets not only `limbnum.h` but also adapts `lll_constants.c`.
 - The `set_bkz_constants` function writes the given parameters directly to `bkz_constants.h` and defaults `BENCHMARK_ITERATIONS` to 1 if it is not given. 
 - The file `data_serializer.py` provides additional functions for generating data files.
-- The file `compute_scratch.py` and its dependency `get_scratch_size.c` compte the required scratch space to be declared in `limbnum.h`.
+- The file `compute_scratch.py` and its dependency `get_scratch_size.c` compute the required scratch space to be declared in `limbnum.h`.
 
 ------
 
@@ -79,13 +79,13 @@ This is the only executable which can be run without using `inputs.h`, but it do
 
 Runs tests ensuring that BKZ reduces all lattices in the `inputs.h` file. 
 
-The tests verify that the bound from Minkowski's second theorem and the bound on the shortest ector are respected. Furthermore, it is veriied that the output is a basis of the same lattice then the input.
+The tests verify that the bound from Minkowski's second theorem and the bound on the shortest vector are respected. Furthermore, it is veriied that the output is a basis of the same lattice then the input.
 
 Compile and run it with `make test`
 
 Requires `inputs.h` (with corresponding `inputs.c`or datafile), `bkz_constants.h`, `lll_constants.c` and `limbnum.h`to be generated correctly and consistently. 
 
-If `DATA_FILE` and `LATTICE_DATA_NUMBER` are defined in `inputs.h`, it the script will be compiled so that it uses these. The lattices in the data file are assumed to be integral ideals of the give quaternion algebra. If one of these macros is undefined, the compiler will check if `LATTICE_NUMBER` is defined and use the lattices from `LATTICE_LIST`. To be run on LLL instead or in addition to BKZ, the `BKZ_TEST` and `LLL_TEST` can be used as described above.
+If `DATA_FILE` and `LATTICE_DATA_NUMBER` are defined in `inputs.h`, it the script will be compiled so that it uses these. The lattices in the data file are assumed to be integral ideals of the given quaternion algebra. If one of these macros is undefined, the compiler will check if `LATTICE_NUMBER` is defined and use the lattices from `LATTICE_LIST`. To be run on LLL instead or in addition to BKZ, the `BKZ_TEST` and `LLL_TEST` can be used as described above.
 
 ### Benchmark
 
@@ -116,7 +116,7 @@ For the measures reported in the paper, some additional targets can be build and
 
 ### Test, benchmark, write to file
 
-This is only available if `DATA_FILE` and `LATTICE_DATA_NUMBER` are defined in `inputs.h`. It runs tests on `NTESTS` lattices in the file, where `NTESTS`can be defined in `inputs.h` and otherwise defaults to 7. After this, benchmarks are run on `LATTICE_DATA_NUMBER` lattices in the datafile, and the results  for each lattice are written to a file named like the datafile prefixed with `bench_`. Our post_processing script `post_processor.py` can be run on this output and the datafile to produce a .csv file for RLFT. 
+This is only available if `DATA_FILE` and `LATTICE_DATA_NUMBER` are defined in `inputs.h`. It runs tests on `NTESTS` lattices in the file, where `NTESTS`can be defined in `inputs.h` and otherwise defaults to 7. After this, benchmarks are run on `LATTICE_DATA_NUMBER` lattices in the datafile, and the results  for each lattice are written to a file named like the datafile prefixed with `bench_`. Our post_processing script `post_processor.py` can be run on this output and the datafile to produce a .csv file for [RLFT](https://github.com/tls-attacker/RTLF). 
 
 Compile and run it with `make bench_stats`.
 
@@ -132,15 +132,19 @@ In order to get this verbous output from noral tests, it is sufficient to compil
 
 `make bench_ctgrind` will compile and run BKZ-2 on the first lattice in the used datafile while using ctgind (that is, valgrind with the input lattice declared as uninitialized memory). Be aware that this requires to have Valgrind installed, which is not possible on ARM Macs.
 
+### bench_nct_lll
+
+`make bench_nct_lll` will compile and run benchmarks for the LLL implementation in `nct_intbig_lll`.
+
 -----
 
 ## Code structure and origin by subfolders
 
 ### Files directly in `src`
 
-Files directly in the `src`folder are either files corresponding to make targets (`bench_ctgrind.c`, `bench.c`, `bench_stats.c`, `bench_stats_lll.c`, `run.c`, `small_test.c`, `test.c`), common headers used by these (`bench.h`, `read_data.h`) or input and header files which need to be adapted frequently (`inputs.h`, `inputs.c`,`limbnum.h`, `bkz_constants.h`). The files `ctgrind.h`and `ctgrind.c` are from ctgrind and only used for the target `bench_ctgrind`. 
+Files directly in the `src`folder are either files corresponding to make targets (`bench_ctgrind.c`, `bench.c`, `bench_stats.c`, `bench_stats_lll.c`, `run.c`, `small_test.c`, `test.c`), common headers used by these (`bench.h`, `read_data.h`) or input and header files which need to be adapted frequently (`inputs.h`, `inputs.c`,`limbnum.h`, `bkz_constants.h`). The files `ctgrind.h` and `ctgrind.c` are from ctgrind and only used for the target `bench_ctgrind`. 
 
-The make targets were all written specifically for this projects, as well as most of the variable headers and `read_data.h`. The ctgrind fles are from ctgrind, and `bench.h` is an adaptation from the `bench.h` file in the NIST submission of SQIsign.
+The make targets were all written specifically for this projects, as well as most of the variable headers and `read_data.h`. The ctgrind files are from ctgrind, and `bench.h` is an adaptation from the `bench.h` file in the NIST submission of SQIsign.
 
 ### ct_intbig
 
@@ -156,7 +160,7 @@ This folder declares (in `ct_helpers.h`) and defines (in `ct_helpers.c`) functio
 
 ### bkz
 
-The files `bkz.c`and `bkz.h` contain the implementation of our constant-time BKZ implementation. The code is written specifically for BKZ-2, using the tools from `ct_helpers`and `ct_intbig`. It closely follows the sage implementation, but uses the reduced norm throughout and implements the dicǘision by the gcd of the gram matrix, as long as `NO_DIVISION` is undefined at compile time.
+The files `bkz.c`and `bkz.h` contain the implementation of our constant-time BKZ-2 implementation. The code is written specifically for BKZ-2, using the tools from `ct_helpers`and `ct_intbig`. It closely follows the sage implementation, but uses the reduced norm throughout and implements the dicǘision by the gcd of the gram matrix, as long as `NO_DIVISION` is undefined at compile time.
 
 The folder also contains some static tests for BKZ-2 and its subfunction in the files `test_bkz.h`and `test_bkz.c`. They are only run by the target `small_test`.
 
@@ -171,6 +175,10 @@ The `lll_constants.h` and `lll_constants.c` files declare and define the constan
 ### nct_intbig
 
 This module, with its files `nct_intbig.c` and `nct_intbig.h`,  is an exact copy of the *intbig* module of the SQIsign NIST implementation, except that all function and type names are prefixed by `nct` which stands for non-constant time. This variable-size and variable-time integer type based on GMP is only used in tests. It allows us to fix the size of our constant-time integers only in function of their use in BKZ or LLL and not on their use in the tests. This is important since some tests compute Hermite Normal Forms and therefore require larnge integers. Furthermore the use of this integer type speeds up the tests. The integers from SQIsign were used because there already exists an implementation of various quaternion algebra operations on top of it, which we can use for our tests. 
+
+### nct_intbig_lll
+
+Contains the original LLL implementation from the SQIsign round 1 NIST submission, modified only so that it uses our names for the nct_intbig functions (which are the sames than those used in the SQIsign NIST submission).
 
 ### test_helpers
 
