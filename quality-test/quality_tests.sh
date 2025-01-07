@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 
-lvl=1 #or 3 or 5
+lvl=3 #or 3 or 5
 
-if [ ${lvl}==1 ]
+if [ ${lvl} -eq 1 ]
 then
   # NIST lvl 1 input to create_ideals.sage
   P=23920667128620486487914848107166358953830561597426178123910317653495243603967
   NI=1809251394333065553493296640760748560207343510400633813116524750123642650624
   NU=1852673427797059126777135760139006525652319754650249024631321344126610074238975
   LN=30
-  NL=20 
+  NL=20
   BTSTART=1
   BTEND=20
   LTSTART=1
   LTEND=12
-elif [ ${lvl}==3 ]
+elif [ ${lvl} -eq 3 ]
 then
   # NIST lvl 3 input to create_ideals.sage
   P=596076388303301563275968567721546557313301041076583731790360080103537153788990265547963593275457141924327935967231
@@ -40,10 +40,9 @@ else
 fi
 
 echo "Run quality tests on NIST lvl${lvl} ${LN} ideals with p=${P}  nl=${NL}"
-
 DATAFILE="lvl${lvl}_ln${LN}_nl${NL}"
-echo "Generating ideals into the file ${DATAFILE}"
-sage create_ideals.sage $P $NI $NU $LN $NL $BTSTART $LTSTART -data datafile=$DATAFILE
+# echo "Generating ideals into the file ${DATAFILE}"
+# sage create_ideals.sage $P $NI $NU $LN $NL $BTSTART $LTSTART -data datafile=$DATAFILE
 
 
 for BT in `seq $BTSTART 1 $BTEND`
@@ -54,7 +53,7 @@ do
     python bkz_constants.py $BT $LT
 
     #filename to re-direct output of the tests to
-    FILENAME="lvl${lvl}_p239_nl${NL}_bt${BT}_lt${LT}"
+    FILENAME="lvl${lvl}_nl${NL}_bt${BT}_lt${LT}"
     echo "redirecting output to file ${FILENAME}"
 
     make quality_test
