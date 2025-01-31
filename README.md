@@ -2,7 +2,18 @@
 
 Constant-time lattice reduction for SQIsign
 
-We will first explain how to use the present code, then we will detail the structure of the codebase and clarify which parts of the code are new and which are adapted from the NIST submission of [SQIsign](https://sqisign.org/).
+We will first explain how to use the present code, then we will detail the structure of the codebase. 
+
+------
+
+##Origins of the code
+
+
+Many parts of this code are adapted from the NIST submission of [SQIsign](https://sqisign.org/). 
+
+In particular the file `src/lll/lll.c` is directly taken from that implementation. Furthermore, almost all quaternion-related functions in `src/ct_helpers/ct_helpers.c`, `src/test_helpers/nct_helpers.c` and `src/test_helpers/test_helpers.c`  are taken over from SQIsign, and the `src/nct_intbig` module is obtained from SQIsign's intbig module by just renaming the functions to add the `nct_` prefix. Similarly, `src/nct_lll/lll.c` is an adaptation of SQIsign's `lll.c` file to use the `nct_ibz` functions.
+
+The code in `src/bkz`, as well as most test code at the root of the `src` folder and all code outside of the `src` folder was newly written for this project.
 
 ------
 
